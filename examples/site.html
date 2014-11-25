@@ -6,7 +6,8 @@
     <title>Nvd3 - reusable charts for D3.js</title>
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script>
         var sectionHeight = function() {
             var total    = $(window).height(),
@@ -128,7 +129,7 @@
                     });
                     $('.examplelinks a').each(function(i, elem) {
                         $(elem).click(function(evt) {
-                            $('#show').prop('src', $(evt.target).prop('href'));
+                            $('#show').prop('src', $(evt.target).prop('href').replace("https", "http"));
                             evt.stopPropagation();
                             evt.preventDefault();
                             $('.examplelinks a').removeClass('selected');
