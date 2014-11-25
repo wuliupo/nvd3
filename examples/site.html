@@ -6,9 +6,13 @@
     <title>Nvd3 - reusable charts for D3.js</title>
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script>
+        // force http to avoid stupid mixed content stuff.
+        // can't use relative links because they break when loading the site locally on disk (browsers suck)
+        if (window.location.protocol == "https:")
+            window.location.href = "http:" + window.location.href.substring(window.location.protocol.length);
+
         var sectionHeight = function() {
             var total    = $(window).height(),
                     $section = $('section').css('height','auto');
@@ -129,7 +133,7 @@
                     });
                     $('.examplelinks a').each(function(i, elem) {
                         $(elem).click(function(evt) {
-                            $('#show').prop('src', $(evt.target).prop('href').replace("https", "http"));
+                            $('#show').prop('src', $(evt.target).prop('href'));
                             evt.stopPropagation();
                             evt.preventDefault();
                             $('.examplelinks a').removeClass('selected');
