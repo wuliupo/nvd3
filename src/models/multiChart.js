@@ -71,12 +71,12 @@ nv.models.multiChart = function() {
                 availableHeight = (height || parseInt(container.style('height')) || 400)
                     - margin.top - margin.bottom;
 
-            var dataLines1 = data.filter(function(d) {return !d.disabled && d.type == 'line' && d.yAxis == 1})
-            var dataLines2 = data.filter(function(d) {return !d.disabled && d.type == 'line' && d.yAxis == 2})
-            var dataBars1 = data.filter(function(d) {return !d.disabled && d.type == 'bar' && d.yAxis == 1})
-            var dataBars2 = data.filter(function(d) {return !d.disabled && d.type == 'bar' && d.yAxis == 2})
-            var dataStack1 = data.filter(function(d) {return !d.disabled && d.type == 'area' && d.yAxis == 1})
-            var dataStack2 = data.filter(function(d) {return !d.disabled && d.type == 'area' && d.yAxis == 2})
+            var dataLines1 = data.filter(function(d) {return d.type == 'line' && d.yAxis == 1})
+            var dataLines2 = data.filter(function(d) {return d.type == 'line' && d.yAxis == 2})
+            var dataBars1 =  data.filter(function(d) {return d.type == 'bar'  && d.yAxis == 1})
+            var dataBars2 =  data.filter(function(d) {return d.type == 'bar'  && d.yAxis == 2})
+            var dataStack1 = data.filter(function(d) {return d.type == 'area' && d.yAxis == 1})
+            var dataStack2 = data.filter(function(d) {return d.type == 'area' && d.yAxis == 2})
 
             var series1 = data.filter(function(d) {return !d.disabled && d.yAxis == 1})
                 .map(function(d) {
@@ -111,7 +111,12 @@ nv.models.multiChart = function() {
 
             var g = wrap.select('g');
 
+            var color_array = data.map(function(d,i) {
+                return data[i].color || color(d, i);
+            });
+
             if (showLegend) {
+                legend.color(color_array);
                 legend.width( availableWidth / 2 );
 
                 g.select('.legendWrap')
@@ -132,67 +137,66 @@ nv.models.multiChart = function() {
                     .attr('transform', 'translate(' + ( availableWidth / 2 ) + ',' + (-margin.top) +')');
             }
 
-
             lines1
                 .width(availableWidth)
                 .height(availableHeight)
                 .interpolate(interpolate)
-                .color(data.map(function(d, i) {
-                    return d.color || color[i % color.length];
-                }).filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 1 && data[i].type == 'line'}));
+                .color(color_array.filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 1 && data[i].type == 'line'}));
 
             lines2
                 .width(availableWidth)
                 .height(availableHeight)
                 .interpolate(interpolate)
-                .color(data.map(function(d,i) {
-                    return d.color || color[i % color.length];
-                }).filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 2 && data[i].type == 'line'}));
+                .color(color_array.filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 2 && data[i].type == 'line'}));
 
             bars1
                 .width(availableWidth)
                 .height(availableHeight)
-                .color(data.map(function(d,i) {
-                    return d.color || color[i % color.length];
-                }).filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 1 && data[i].type == 'bar'}));
+                .color(color_array.filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 1 && data[i].type == 'bar'}));
 
             bars2
                 .width(availableWidth)
                 .height(availableHeight)
-                .color(data.map(function(d,i) {
-                    return d.color || color[i % color.length];
-                }).filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 2 && data[i].type == 'bar'}));
+                .color(color_array.filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 2 && data[i].type == 'bar'}));
 
             stack1
                 .width(availableWidth)
                 .height(availableHeight)
-                .color(data.map(function(d,i) {
-                    return d.color || color[i % color.length];
-                }).filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 1 && data[i].type == 'area'}));
+                .color(color_array.filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 1 && data[i].type == 'area'}));
 
             stack2
                 .width(availableWidth)
                 .height(availableHeight)
-                .color(data.map(function(d,i) {
-                    return d.color || color[i % color.length];
-                }).filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 2 && data[i].type == 'area'}));
+                .color(color_array.filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 2 && data[i].type == 'area'}));
 
             g.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 
             var lines1Wrap = g.select('.lines1Wrap')
-                .datum(dataLines1)
+                .datum(
+                    dataLines1.filter(function(d){return !d.disabled})
+                )
             var bars1Wrap = g.select('.bars1Wrap')
-                .datum(dataBars1)
+                .datum(
+                    dataBars1.filter(function(d){return !d.disabled})
+                )
             var stack1Wrap = g.select('.stack1Wrap')
-                .datum(dataStack1)
+                .datum(
+                    dataStack1.filter(function(d){return !d.disabled})
+                )
 
             var lines2Wrap = g.select('.lines2Wrap')
-                .datum(dataLines2)
+                .datum(
+                    dataLines2.filter(function(d){return !d.disabled})
+                )
             var bars2Wrap = g.select('.bars2Wrap')
-                .datum(dataBars2)
+                .datum(
+                    dataBars2.filter(function(d){return !d.disabled})
+                )
             var stack2Wrap = g.select('.stack2Wrap')
-                .datum(dataStack2)
+                .datum(
+                    dataStack2.filter(function(d){return !d.disabled})
+                )
 
             var extraValue1 = dataStack1.length ? dataStack1.map(function(a){return a.values}).reduce(function(a,b){
                 return a.map(function(aVal,i){return {x: aVal.x, y: aVal.y + b[i].y}})
@@ -249,6 +253,10 @@ nv.models.multiChart = function() {
 
             d3.transition(g.select('.y2.axis'))
                 .call(yAxis2);
+
+            g.select('.y1.axis')
+                .style('opacity', series1.length ? 1 : 0)
+                .attr('transform', 'translate(' + x.range()[0] + ',0)');
 
             g.select('.y2.axis')
                 .style('opacity', series2.length ? 1 : 0)
@@ -410,9 +418,13 @@ nv.models.multiChart = function() {
 
     chart.margin = function(_) {
         if (!arguments.length) return margin;
-        margin = _;
+        margin.top    = typeof _.top    != 'undefined' ? _.top    : margin.top;
+        margin.right  = typeof _.right  != 'undefined' ? _.right  : margin.right;
+        margin.bottom = typeof _.bottom != 'undefined' ? _.bottom : margin.bottom;
+        margin.left   = typeof _.left   != 'undefined' ? _.left   : margin.left;
         return chart;
     };
+
 
     chart.width = function(_) {
         if (!arguments.length) return width;
@@ -428,8 +440,7 @@ nv.models.multiChart = function() {
 
     chart.color = function(_) {
         if (!arguments.length) return color;
-        color = _;
-        legend.color(_);
+        color = nv.utils.getColor(_);
         return chart;
     };
 

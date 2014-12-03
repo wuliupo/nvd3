@@ -1,0 +1,380 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Nvd3 - reusable charts for D3.js</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+    <script src="../build/nv.d3.js"></script>
+
+    <link rel="stylesheet" href="http://cdn.rawgit.com/isagalaev/highlight.js/8.4/src/styles/tomorrow.css">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/languages/javascript.min.js"></script>
+
+    <script>
+
+        function parse_options(container, obj, extra) {
+            var options = [];
+            // must check Array first, because Array is an Object as well.
+            if (obj instanceof Array) {
+                options = obj;
+            } else if (obj instanceof Object && obj._options) {
+                options = Object.getOwnPropertyNames(obj._options);
+            } else if (typeof obj === 'string') {
+                options = [obj];
+            }
+            for (var i in options) {
+                var op = $('<li>');
+                var t = options[i];
+                if (extra !== undefined) {
+                    t += ' <span class="inherited">' + extra + '</span>';
+                }
+                op.addClass('option');
+                op.prop('name', options[i]);
+                op.html(t);
+                container.append(op);
+            }
+        }
+
+        $('body').ready(function () {
+            var charts = [
+                'pieChart',
+                'lineChart',
+                'line',
+                'scatter',
+                'axis',
+                'scatterChart',
+                'stackedAreaChart',
+                'scatterPlusLineChart',
+                'sparklinePlus',
+                'multiChart',
+                'multiBarHorizontalChart',
+                'multiBarChart',
+                'lineWithFocusChart',
+                'linePlusBarWithFocusChart',
+                'linePlusBarChart',
+                'historicalBarChart',
+                'discreteBarChart',
+                'cumulativeLineChart',
+                'bulletChart'
+            ];
+            var c = $('#optionlist');
+            for (var i in charts) {
+                var name = charts[i];
+                if (nv.models[name]) {
+                    var chart = nv.models[name]();
+                    c.append("<h3>" + name + "</h3>");
+                    var ul = $('<ul>');
+                    parse_options(ul, chart);
+                    if (chart._inherited) {
+                        for (var j in chart._inherited) {
+                            var op = chart._inherited[j];
+                            if (chart._options[op] === undefined) {
+                                parse_options(ul, op, '(inherited)');
+                            }
+                        }
+                    }
+                    if (chart._d3options) {
+                        parse_options(ul, chart._d3options, '(inherited from D3)');
+                    }
+                    c.append(ul);
+                } else {
+                    console.log('Chart missing: ', name);
+                }
+            }
+
+            console.log($('.option'));
+            $('.option').click(function(evt) {
+                var a = $(evt.target);
+                var name = a.prop('name');
+
+                // trigger only for li, not child dom
+                if (!a.is('li')) return;
+
+                if (a.find('.option-info').length) {
+                    a.removeClass('option-selected');
+                    a.find('.option-info').remove();
+                } else {
+                    a.addClass('option-selected');
+                    var info = '';
+                    if (option_info[name]) {
+
+                        var desc = option_info[name]['desc'];
+                        var def = option_info[name]['default'];
+                        var ex = option_info[name]['examples'];
+                        var examples = [];
+                        var inputs = [];
+
+                        // process examples
+                        for (var i in ex) {
+                            var e = ex[i];
+                            var etype = e instanceof Array ? 'array' : typeof e;
+                            if (inputs.indexOf(etype) < 0) {
+                                inputs.push(etype);
+                            }
+                            if (etype == 'object' || etype == 'array' || etype == 'string')
+                                e = JSON.stringify(e);
+                            if (etype == 'function') {
+                                // if function, remove the first 20 spaces in each line
+                                // due to indention in the info object
+                                e = e.toString().replace(/(\r\n|\n|\r)\s{16}/gm,'\n');
+                            }
+                            examples.push('chart.' + name + '(' + $('<div/>').text(e).html() + ')');
+                        }
+
+                        // build html of other option info
+                        if (desc) {
+                            info += "<div class='part'>Description:</div>";
+                            info += "<div>" + desc + "</div>";
+                        }
+                        if (inputs.length) {
+                            info += "<div class='part'>Input Type(s):</div>";
+                            info += "<div>" + inputs.join(' or ') + "</div>";
+                        }
+                        if (def !== undefined) {
+                            info += "<div class='part'>Default:</div>";
+                            info += "<div>" + def + "</div>";
+                        }
+                        if (examples.length) {
+                            info += "<div class='part'>Example(s):</div>";
+                            info += "<div class='example'><code class='javascript'>" + examples.join("</code><code class='javascript'>") + "</code></div>";
+                        }
+                    } else {
+                        info = 'No info for this option yet...';
+                    }
+                    a.append('<div class="option-info">' + info + '</div>');
+                    a.find('code').each(function(i, block) {
+                        hljs.highlightBlock(block);
+                    });
+                }
+            });
+        });
+    </script>
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+</head>
+<body>
+
+<header>
+    <h1>Nvd3</h1>
+    <p>A reusable chart library for d3.js</p>
+</header>
+
+<div id="banner">
+    <div>
+        <span id="logo"></span>
+
+        <a href="http://github.com/liquidpele/nvd3" target="github" class="button fork"><strong>GitHub</strong></a>
+        <a href="site.html" class="button fork docs"><strong>Examples</strong></a>
+        <a href="documentation.html" class="button fork docs selected"><strong>Documentation</strong></a>
+        <div class="downloads">
+            <span>Downloads:</span>
+            <ul>
+                <li><a href="https://github.com/liquidpele/nvd3/zipball/master" class="button">ZIP</a></li>
+                <li><a href="https://github.com/liquidpele/nvd3/tarball/master" class="button">TAR</a></li>
+            </ul>
+        </div>
+    </div>
+</div><!-- end banner -->
+
+<div class="wrapper">
+    <nav>
+        <ul></ul>
+    </nav>
+    <section>
+        <h3>
+            NVD3 Documentation
+        </h3>
+
+        <p>
+            This page lists out all options available to the charts and is generated programatically using
+            the new options object model.  All options can be called as functions on the chart object
+            to get the option vaue (if no argument given) or to set the value.   Alternatively,
+            you can use the options() method on the chart object and pass in a dictionary of the
+            option names and values to set them all at once.
+        </p>
+
+        Example:
+        <pre>
+            var chart = nv.models.pieChart();
+            chart.width(500);
+            chart.title('stuff').titleOffset(-10);
+            chart.options({height: 500, donut: true});
+        </pre>
+
+        <div id="optionlist"></div>
+
+    </section>
+</div>
+<!--[if !IE]><script>fixScale(document);</script><![endif]-->
+
+
+<!-- start option info -->
+<script>
+    var option_info = {
+        title: {
+            desc: "Text to include within the middle of a donut chart",
+            default: "Blank String",
+            examples: ['Customers']
+        },
+        titleOffset: {
+            desc: "Vertical offset for the donut chart title",
+            examples: [-10, 23]
+        },
+        color: {
+            desc: "Colors to use for the different data.  If an array is given, it is converted to a function automatically.",
+            default: "nv.utils.defaultColor()",
+            examples: [
+                ['#FF0000', '#00FF00', '#0000FF'],
+                function (d, i) {
+                    var colors = d3.scale.category20().range().slice(10);
+                    return colors[i % colors.length-1];
+                }
+            ]
+        },
+        showLegend: {
+            desc: "Whether to display the legend or not",
+            default: true,
+            examples: [true]
+        },
+        tooltips: {
+            desc: "Whether to display tooltips or not",
+            default: true,
+            examples: [true]
+        },
+        tooltipContent: {
+            desc: "Function used to build the tooltip content",
+            default: "Depends on graph type",
+            examples: [
+                function(key, y, e, graph) {
+                    var content = '<h3 style="background-color: ';
+                    content += e.color + '">';
+                    content += key + '</h3><p>' +  y + '</p>';
+                    return content;
+                }
+            ]
+        },
+        noData: {
+            desc: "Message to display if no data is provided",
+            default: 'No Data Available.',
+            examples: ["There is no Data to display"]
+        },
+        duration: {
+            desc: "Duration in ms to take when updating chart",
+            default: 250,
+            examples: [1000]
+        },
+        defaultState: {
+            desc: "No longer used.  Use chart.dispatch.changeState(...) instead."
+        },
+        showLabels: {
+            desc: "Show pie/donut chart labels for each slice",
+            default: true,
+            examples: [true]
+        },
+        width: {
+            desc: "The width the graph created inside the SVG should be made.",
+            default: "The width of the container element (normally the svg itself)",
+            examples: [900]
+        },
+        height: {
+            desc: "The height the graph created inside the SVG should be made.",
+            default: "The height of the container element (normally the svg itself)",
+            examples: [600]
+        },
+        donut: {
+            desc: "Whether to make a pie graph a donut graph or not",
+            default: false,
+            examples: [true]
+        },
+        margin: {
+            desc: "Object containing the margins for the chart inside the svg container.  You can specify only certain margins in the object too.",
+            default: "0 for all margins",
+            examples: [
+                {top: 10, bottom: 10},
+                {left: 5, right: 5, top: 10, bottom: 10}
+            ]
+        },
+        growOnHover: {
+            desc: "For pie/donut charts, whether to increase slice radius on hover or not",
+            default: true,
+            examples: [true]
+        },
+        donutLabelsOutside: {
+            desc: "Whether donut chart labels should be outside or inside the slices",
+            default: true,
+            examples: [true]
+        },
+        pieLabelsOutside: {
+            desc: "Whether pie chart labels should be outside or inside the slices",
+            default: true,
+            examples: [true]
+        },
+        cornerRadius: {
+            desc: "D3 3.4+, For donut charts only, the corner radius of the slices.  Typically used with padAngle.",
+            default: false,
+            examples: [true]
+        },
+        padAngle: {
+            desc: "D3 3.4+, For donut charts only, the percent of the chart that should be spacing between slices.",
+            default: 0,
+            examples: [0.05]
+        },
+        labelThreshold: {
+            desc: "Pie/donut charts: The slice threshold size to not display the label because it woudl be too small of a space",
+            default: 0.02,
+            examples: [0.05]
+        },
+        startAngle: {
+            desc: "Function used to manage the starting angle of the pie/donut chart",
+            default: "Ignored unless set",
+            examples: [
+                function(d) {
+                    return d.startAngle/2 - Math.PI/2;
+                }
+            ]
+        },
+        endAngle: {
+            desc: "Function used to manage the ending angle of the pie/donut chart",
+            default: "Ignored unless set",
+            examples: [
+                function(d) {
+                    return d.endAngle/2 - Math.PI/2;
+                }
+            ]
+        },
+        labelType: {
+            desc: "pie/donut charts only: what kind of data to display for the slice labels.  Options are key, value, or percent. ",
+            default: 'key',
+            examples: ['key', 'value', 'percent']
+        },
+        x: {
+            desc: "Proxy function to return the X value so adjustments can be made if needed.  For pie/donut chart this returns the key for the slice.",
+            default: "function(d){ return d.x; }",
+            examples: [
+                function(d){
+                    return d.x;
+                }
+            ]
+        },
+        y: {
+            desc: "Proxy function to return the Y value so adjustments can be made if needed.  For pie/donut chart this returns the value for the slice.",
+            default: "function(d){ return d.y; }",
+            examples: [
+                function(d){
+                    // don't show negative values
+                    return d.y < 0 ? 0 : d.y;
+                }
+            ]
+        }
+    };
+</script>
+
+</body>
+</html>
