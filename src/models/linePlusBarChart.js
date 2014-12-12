@@ -561,7 +561,6 @@ nv.models.linePlusBarChart = function() {
     chart.y3Axis = y3Axis;
     chart.y4Axis = y4Axis;
 
-    chart.dispatch = dispatch;
     chart.options = nv.utils.optionsFunc.bind(chart);
 
     chart._options = Object.create({}, {
@@ -585,7 +584,7 @@ nv.models.linePlusBarChart = function() {
             margin.bottom = _.bottom !== undefined ? _.bottom : margin.bottom;
             margin.left   = _.left   !== undefined ? _.left   : margin.left;
         }},
-        duration: {get: function(){return duration;}, set: function(_){
+        duration: {get: function(){return transitionDuration;}, set: function(_){
             transitionDuration = _;
         }},
         color:  {get: function(){return color;}, set: function(_){
