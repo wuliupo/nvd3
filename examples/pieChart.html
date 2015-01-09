@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta charset="utf-8">
+	<title>nvd3 example - pie chart</title>
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" name="viewport" />
     <link href="../build/nv.d3.css" rel="stylesheet" type="text/css">
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
     <script src="../build/nv.d3.js"></script>
@@ -69,11 +71,7 @@
             .call(chart);
 
         // update chart data values randomly
-        setInterval(function() {
-            testdata2[0].y = Math.floor(Math.random() * 10);
-            testdata2[1].y = Math.floor(Math.random() * 10);
-            chart.update();
-        }, 4000);
+
 
         return chart;
     });
@@ -111,10 +109,7 @@
 
         // disable and enable some of the sections
         var is_disabled = false;
-        setInterval(function() {
-            chart.dispatch.changeState({disabled: {2: !is_disabled, 4: !is_disabled}});
-            is_disabled = !is_disabled;
-        }, 3000);
+
 
         return chart;
     });
